@@ -1,0 +1,16 @@
+db/
+incremental_db/
+output_files/
+simulation/
+*.jdi
+*.pof
+*.sof
+*.summary
+*.qws
+*.sld
+*.rpt
+*.tmp
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*

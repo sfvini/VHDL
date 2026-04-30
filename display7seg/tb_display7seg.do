@@ -1,22 +1,31 @@
-onerror {resume}
-quietly WaveActivateNextPane {} 0
-add wave -noupdate /display7seg/sw
-add wave -noupdate /display7seg/hex0
-TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {0 ps} 0}
-quietly wave cursor active 0
-configure wave -namecolwidth 150
-configure wave -valuecolwidth 100
-configure wave -justifyvalue left
-configure wave -signalnamewidth 0
-configure wave -snapdistance 10
-configure wave -datasetprefix 0
-configure wave -rowmargin 4
-configure wave -childrowmargin 2
-configure wave -gridoffset 0
-configure wave -gridperiod 1
-configure wave -griddelta 40
-configure wave -timeline 0
-configure wave -timelineunits ps
-update
-WaveRestoreZoom {150 ps} {1150 ps}
+vsim work.display7seg
+vsim work.display7seg(code)
+vsim work.c_display7seg
+
+vsim work.display7seg
+add wave -position insertpoint  \
+sim:/display7seg/sw
+add wave -position insertpoint  \
+sim:/display7seg/hex0
+force -freeze sim:/display7seg/sw 0000 0
+run
+force -freeze sim:/display7seg/sw 0001 0
+run
+force -freeze sim:/display7seg/sw 0010 0
+run
+force -freeze sim:/display7seg/sw 0011 0
+run
+force -freeze sim:/display7seg/sw 0100 0
+run
+force -freeze sim:/display7seg/sw 0101 0
+run
+force -freeze sim:/display7seg/sw 0110 0
+run
+force -freeze sim:/display7seg/sw 0111 0
+run
+force -freeze sim:/display7seg/sw 1000 0
+run
+force -freeze sim:/display7seg/sw 1001 0
+run
+force -freeze sim:/display7seg/sw 1111 0
+run

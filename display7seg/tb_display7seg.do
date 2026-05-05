@@ -27,5 +27,15 @@ force -freeze sim:/display7seg/sw 1000 0
 run
 force -freeze sim:/display7seg/sw 1001 0
 run
+force -freeze sim:/display7seg/sw 1010 0
+run
+force -freeze sim:/display7seg/sw 1011 0
+run
+force -freeze sim:/display7seg/sw 1100 0
+run
+force -freeze sim:/display7seg/sw 1101 0
+run
+force -freeze sim:/display7seg/sw 1110 0
+run
 force -freeze sim:/display7seg/sw 1111 0
 run

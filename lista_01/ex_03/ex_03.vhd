@@ -7,6 +7,8 @@ entity ex_03 is
     (
         clk, reset : in STD_LOGIC;
         up: in STD_LOGIC;
+		  load: in STD_LOGIC;
+		  entrada: in STD_LOGIC_VECTOR(7 downto 0);
         q: out STD_LOGIC_VECTOR(7 downto 0)
     );
 end ex_03;
@@ -27,12 +29,14 @@ begin
         end if;
     end process;
 
-    process (up, r_reg)
+   process (up, r_reg, entrada, load)
     begin
-        if (up = '1') then
-            r_next <= r_reg + 1;      
+        if (load = '1') then
+            r_next <= unsigned(entrada);
+        elsif (up = '1') then
+            r_next <= r_reg + 1;
         else
-            r_next <= r_reg - 1;      
+            r_next <= r_reg - 1;
         end if;
     end process;
 

@@ -90,3 +90,35 @@ begin
     end if;
 end process;
 ```
+
+### Estruturas de Seleção (Apenas dentro de process)
+```vhdl
+if selecao = "00" then
+    saida <= entrada_A;
+elsif selecao = "01" then
+    saida <= entrada_B;
+else
+    saida <= entrada_C;
+end if;
+```
+
+```vhdl
+case selecao is
+    when "00"   => saida <= entrada_A;
+    when "01"   => saida <= entrada_B;
+    when others => saida <= (others => '0'); -- Cláusula 'others' é obrigatória em VHDL
+end case;
+```
+
+### Atribuição Concorrente (Apenas fora de process)
+
+```vhdl
+-- Atribuição condicional (When/Else)
+saida <= entrada_A when (chave = '1') else entrada_B;
+
+-- Atribuição selecionada (With/Select)
+with seletor select
+    saida <= entrada_A when "00",
+             entrada_B when "01",
+             entrada_C when others;
+```

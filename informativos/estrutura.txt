@@ -1,0 +1,60 @@
+-- ================================================================================
+-- DEVICE:  Cyclone IV EP4CE115F29C7 
+-- ================================================================================
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL; -- Sempre inclua para operações aritméticas (unsigned/signed)
+
+entity <entity_name> is
+    generic
+    (
+        -- Parâmetros configuráveis 
+        <generic_name> : integer := <default_value>
+    );
+    port
+    (
+        -- Portas de Entrada (Clocks, Resets)
+        clk            : in  std_logic;
+        rst            : in  std_logic;
+        <input_name>   : in  std_logic_vector(1 downto 0);
+
+        -- Portas Bidirecionais 
+        <inout_name>   : inout std_logic;
+
+        -- Portas de Saída 
+        <output_name>  : out std_logic_vector(1 downto 0)
+    );
+end <entity_name>;
+
+-- ================================================================================
+
+architecture <arch_name> of <entity_name> is
+    -- Sinais internos, constantes e componentes ficam obrigatoriamente AQUI
+    -- (Antes da palavra reservada 'begin')
+    signal <signal_name> : unsigned(<generic_name>-1 downto 0);
+
+begin
+
+    -- Lógica Combinacional e Processos Sequenciais entram aqui...
+    process(clk, rst)
+    begin
+        if rst = '1' then
+            -- Estado de Reset
+            <signal_name> <= (others => '0');
+        elsif rising_edge(clk) then
+            -- Lógica Síncrona (Borda de Subida do Clock)
+            
+        end if;
+    end process;
+
+end <arch_name>;
+
+-- ================================================================================
+-- Diz ao compilador qual arquitetura deve ser vinculada à entidade
+-- ================================================================================
+configuration cfg_<entity_name> of <entity_name> is
+    for <arch_name>
+        -- Mapeamentos de subcomponentes entrariam aqui, se houver
+    end for;
+end configuration cfg_<entity_name>;

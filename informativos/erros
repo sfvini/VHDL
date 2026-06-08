@@ -1,0 +1,157 @@
+# RESET ASSÍNCRONO
+O reset assíncrono só deve ser ativado por um sinal externo limpo para estabilizar o sistema na inicialização. 
+Nunca misture lógica combinacional interna (portas AND, OR, comparadores) na linha de reset assíncrono. 
+
+-- ==============================================================================
+-- EXEMPLO 
+-- ==============================================================================
+
+-- ❌ ARQUITETURA ERRADA 
+architecture bad_async_reset of fsm_detector is
+    signal state_reg, state_next : integer range 0 to 2;
+    signal internal_reset : std_logic;
+begin
+    -- O sinal 'internal_reset' é gerado por lógica e tem ruído.
+    process(clk, internal_reset)
+    begin
+        if internal_reset = '1' then 
+            state_reg <= 0;
+        elsif rising_edge(clk) then
+            state_reg <= state_next;
+        end if;
+    end process;
+
+    internal_reset <= '1' when (ext_rst = '1' or (sensor_a = '1' and sensor_b = '1')) else '0';
+end bad_async_reset;
+
+
+-- ✅ ARQUITETURA CORRETA 
+architecture good_sync_logic of fsm_detector is
+    signal state_reg, state_next : integer range 0 to 2;
+begin
+    -- O assíncrono escuta EXCLUSIVAMENTE o reset limpo.
+    process(clk, ext_rst)
+    begin
+        if ext_rst = '1' then         
+            state_reg <= 0;
+        elsif rising_edge(clk) then
+            state_reg <= state_next;
+        end if;
+    end process;
+
+    -- A condição dos sensores é analisada de forma síncrona, filtrando qualquer ruído.
+    state_next <= 0 when (sensor_a = '1' and sensor_b = '1') else
+                  1 when state_reg = 0 else 
+                  0;
+end good_sync_logic;
+
+
+# CLOCK DERIVADO
+Fazer divisores de frequência criando um "novo sinal de clock" a partir de flip-flops e usar no rising_edge de 
+outro bloco faz que o clock chega em tempos diferentes para cada parte do chip e destrói o sincronismo do circuito
+
+-- ==============================================================================
+-- EXEMPLO
+-- ==============================================================================
+
+-- ❌ ARQUITETURA ERRADA 
+architecture bad_derived_clock of led_blinker is
+    signal clk_1hz   : std_logic := '0';
+    signal counter   : unsigned(24 downto 0) := (others => '0');
+    signal blink_reg : std_logic := '0';
+begin
+    -- Cria um sinal oscilante
+    process(clk_50mhz)
+    begin
+        if rising_edge(clk_50mhz) then
+            if counter = 24999999 then
+                counter <= (others => '0');
+                clk_1hz <= not clk_1hz;
+            else
+                counter <= counter + 1;
+            end if;
+        end if;
+    end process;
+
+    process(clk_1hz)
+    begin
+        if rising_edge(clk_1hz) then
+            blink_reg <= not blink_reg;
+        end if;
+    end process;
+end bad_derived_clock;
+
+
+-- ✅ ARQUITETURA CORRETA 
+architecture good_clock_enable of led_blinker is
+    signal tick_1hz  : std_logic;
+    signal counter   : unsigned(24 downto 0);
+    signal blink_reg : std_logic;
+begin
+    -- Todos usam o MESMO clock principal. 
+    process(clk_50mhz)
+    begin
+        if rising_edge(clk_50mhz) then
+            if counter = 49999999 then
+                counter  <= (others => '0');
+                tick_1hz <= '1'; 
+            else
+                counter  <= counter + 1;
+                tick_1hz <= '0';
+            end if;
+        end if;
+    end process;
+
+    process(clk_50mhz)
+    begin
+        if rising_edge(clk_50mhz) then
+            if tick_1hz = '1' then
+                blink_reg <= not blink_reg;
+            end if;
+        end if;
+    end process;
+end good_clock_enable;
+
+
+# GATED CLOCK
+Colocar portas lógicas (AND, OR, NOT) cortando o caminho do pino de Clock até o Flip-Flop para tentar "pausar" o sistema, mas o sinal de clock não deve ser manipulado. 
+
+-- ==============================================================================
+-- EXEMPLO 3
+-- ==============================================================================
+
+-- ❌ ARQUITETURA ERRADA 
+architecture bad_gated_clock of register_block is
+    signal clk_gated : std_logic;
+    signal data_reg  : std_logic_vector(7 downto 0);
+begin
+    -- Portas lógicas no caminho do Clock
+    clk_gated <= clk and enable;
+
+    process(clk_gated, reset)
+    begin
+        if reset = '1' then
+            data_reg <= (others => '0');
+        elsif rising_edge(clk_gated) then
+            data_reg <= data_in;
+        end if;
+    end process;
+end bad_gated_clock;
+
+
+-- ✅ ARQUITETURA CORRETA 
+architecture good_internal_mux of register_block is
+    signal data_reg : std_logic_vector(7 downto 0);
+begin
+    process(clk, reset)
+    begin
+        if reset = '1' then
+            data_reg <= (others => '0');
+        elsif rising_edge(clk) then
+            -- O Clock não sofre bloqueio. A "trava" acontece na atualização do dado.
+            if enable = '1' then      
+                data_reg <= data_in;
+            end if;
+        end if;
+    end process;
+end good_internal_mux;

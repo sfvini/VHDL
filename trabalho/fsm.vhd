@@ -27,7 +27,7 @@ architecture estados of relogio_fsm is
     );
     signal state_reg, next_state : mc_state_type;
 begin
-    -- State register 
+
     process(clk, reset)
     begin
         if(reset = '1') then
@@ -37,17 +37,16 @@ begin
         end if;
     end process;
 
-    -- Next-state logic 
     process(state_reg, ajuste, incrementa, decrementa, hora_in, min_in, seg_in)
     begin
         next_state <= state_reg;
-        hora_out <= hora_in;
-        min_out  <= min_in;
-        seg_out  <= seg_in;
-        blink_h  <= '0';
-        blink_m  <= '0';
-        blink_s  <= '0';
-        load     <= '0';
+        hora_out   <= hora_in;
+        min_out    <= min_in;
+        seg_out    <= seg_in;
+        blink_h    <= '0';
+        blink_m    <= '0';
+        blink_s    <= '0';
+        load       <= '0';
 
         case state_reg is
             when idle =>
@@ -55,8 +54,10 @@ begin
                     next_state <= ajuste_h;
                 end if;
 
+
             when ajuste_h =>
                 blink_h <= '1'; 
+                load    <= '1'; 
                 if (ajuste = '1') then
                     next_state <= ajuste_m;
                 elsif (incrementa = '1') then
@@ -67,9 +68,9 @@ begin
 
             when incrementa_h =>
                 blink_h <= '1'; 
-                load <= '1';
+                load    <= '1';
                 if unsigned(hora_in) = 23 then
-                    hora_out <= (others => '0'); 
+                    hora_out <= std_logic_vector(to_unsigned(0, 5)); 
                 else
                     hora_out <= std_logic_vector(unsigned(hora_in) + 1);
                 end if;
@@ -77,7 +78,7 @@ begin
 
             when decrementa_h =>
                 blink_h <= '1'; 
-                load <= '1';
+                load    <= '1';
                 if unsigned(hora_in) = 0 then
                     hora_out <= std_logic_vector(to_unsigned(23, 5));
                 else
@@ -85,8 +86,10 @@ begin
                 end if;
                 next_state <= ajuste_h; 
 
+ 
             when ajuste_m =>
                 blink_m <= '1';
+                load    <= '1'; 
                 if (ajuste = '1') then
                     next_state <= ajuste_s;
                 elsif (incrementa = '1') then
@@ -97,9 +100,9 @@ begin
 
             when incrementa_m =>
                 blink_m <= '1';
-                load <= '1';
+                load    <= '1';
                 if unsigned(min_in) = 59 then
-                    min_out <= (others => '0'); 
+                    min_out <= std_logic_vector(to_unsigned(0, 6));
                 else
                     min_out <= std_logic_vector(unsigned(min_in) + 1);
                 end if;
@@ -107,7 +110,7 @@ begin
 
             when decrementa_m =>
                 blink_m <= '1';
-                load <= '1';
+                load    <= '1';
                 if unsigned(min_in) = 0 then
                     min_out <= std_logic_vector(to_unsigned(59, 6)); 
                 else
@@ -115,8 +118,10 @@ begin
                 end if;
                 next_state <= ajuste_m;
 
+
             when ajuste_s =>
-                blink_s <= '1'; 
+                blink_s <= '1';
+                load    <= '1'; 
                 if (ajuste = '1') then
                     next_state <= idle;
                 elsif (incrementa = '1') then
@@ -127,9 +132,9 @@ begin
 
             when incrementa_s =>
                 blink_s <= '1';
-                load <= '1';
+                load    <= '1';
                 if unsigned(seg_in) = 59 then
-                    seg_out <= (others => '0');
+                    seg_out <= std_logic_vector(to_unsigned(0, 6));
                 else
                     seg_out <= std_logic_vector(unsigned(seg_in) + 1);
                 end if;
@@ -137,7 +142,7 @@ begin
 
             when decrementa_s =>
                 blink_s <= '1';
-                load <= '1';
+                load    <= '1';
                 if unsigned(seg_in) = 0 then
                     seg_out <= std_logic_vector(to_unsigned(59, 6));
                 else

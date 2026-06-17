@@ -70,7 +70,7 @@ begin
                 blink_h <= '1'; 
                 load    <= '1';
                 if unsigned(hora_in) = 23 then
-                    hora_out <= std_logic_vector(to_unsigned(0, 5)); 
+                    hora_out <= std_logic_vector(to_unsigned(0, 5));
                 else
                     hora_out <= std_logic_vector(unsigned(hora_in) + 1);
                 end if;

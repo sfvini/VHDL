@@ -23,6 +23,6 @@ begin
     "1111000" when "0111",
     "0000000" when "1000",
     "0011000" when "1001",
-	 "1111111" when "1111",		-- desliga o display
+	 "1111111" when "1111",		
     "0111111" when others;
 end arch;
